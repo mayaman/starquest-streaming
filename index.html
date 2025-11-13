@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StarQuest Shuffle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            font-family: sans-serif;
+            overflow: hidden;
+        }
+
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #loading-screen.hidden {
+            display: none;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #333;
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #loading-text {
+            color: #fff;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        #loading-progress {
+            color: #999;
+            font-size: 14px;
+        }
+
+        #play-button {
+            font-size: 11vw;
+            color: #DFD8FF;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: none;
+        }
+
+        #play-button:hover {
+            transform: scale(1.05);
+        }
+
+        #play-button.visible {
+            display: block;
+        }
+
+        #video-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            cursor: pointer;
+        }
+
+        #video-container.paused::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        #video-player {
+            z-index: 2;
+        }
+
+        #video-preload {
+            z-index: 1;
+        }
+
+        #play-pause-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            color: #DFD8FF;
+            padding: 30px 50px;
+            border-radius: 10px;
+            font-size: 48px;
+            font-weight: bold;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        #play-pause-indicator.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loading-screen">
+        <div id="loading-text">loading...</div>
+        <button id="play-button">★</button>
+    </div>
+
+    <div id="video-container">
+        <div id="play-pause-indicator">PAUSED</div>
+        <video id="video-player" preload="auto" playsinline></video>
+        <video id="video-preload" preload="auto" playsinline></video>
+    </div>
+
+    <script>
+        // Configuration
+        const sceneIDs = [
+            "98630812780435188807406188671760313206698968340061611991517188134130099896896",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896897",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896898",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896899",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896900",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896901",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896902",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896903",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896904",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896905",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896906",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896907",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896908",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896909",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896910",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896911",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896912",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896913",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896914",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896915",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896916",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896917",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896918",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896919",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896920",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896921",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896922",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896923",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896924",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896925",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896926",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896927",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896928",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896929",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896930",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896931",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896932",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896933",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896934",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896935",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896936",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896937",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896938",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896939",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896940",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896941",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896942",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896943",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896944",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896945",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896946",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896947",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896948",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896949",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896950",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896951",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896952",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896953",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896954",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896955",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896956",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896957",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896958",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896959",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896960",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896961",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896962",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896963",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896964",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896965",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896966",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896967",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896968",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896969",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896970",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896971",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896972",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896973",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896974",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896975",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896976",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896977",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896978",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896979",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896980",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896981",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896982",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896983",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896984",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896985",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896986",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896987",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896988",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896989"
+        ];
+
+        const numberOfVideos = 11;
+        const videoPrefix = 'starquest-scene-';
+        const videoExtension = '.mp4';
+
+        let videoFiles = [];
+        let loadedVideos = [];
+        let playlist = [];
+        let currentIndex = 0;
+        let isPlaying = false;
+
+        const loadingScreen = document.getElementById('loading-screen');
+        const loadingText = document.getElementById('loading-text');
+        // const loadingProgress = document.getElementById('loading-progress');
+        const playButton = document.getElementById('play-button');
+        const videoContainer = document.getElementById('video-container');
+        const playPauseIndicator = document.getElementById('play-pause-indicator');
+        let indicatorTimeout = null;
+        let hasStarted = false;
+
+        // Build video paths
+        // function buildVideoPaths() {
+        //     for (let i = 1; i < numberOfVideos; i++) {
+        //         videoFiles.push(`starquest-scenes-videos/${videoPrefix}${i}${videoExtension}`);
+        //     }
+        //     let base_clip_url = "https://cdn.feralfileassets.com/previews/1c4e667e-45b5-4467-a1e9-8efe8165ca0d/1763010757/clips/";
+        //     videoFiles
+        // }
+
+        function buildVideoPaths() {
+            console.log("building remote paths")
+            for (const id of sceneIDs) {
+                videoFiles.push(`https://cdn.feralfileassets.com/previews/1c4e667e-45b5-4467-a1e9-8efe8165ca0d/1763010757/clips/${id}`);
+            }
+        }
+        // Shuffle array
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Load all videos
+        async function loadVideos() {
+            let loaded = 0;
+            let anythingLoaded = false
+
+            for (const file of videoFiles) {
+                try {
+                    const response = await fetch(file);
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    loadedVideos.push(url);
+                    loaded++;
+
+                    if (!anythingLoaded) {
+                        loadingText.style.display = 'none';
+                        playButton.style.display = 'block';
+                        anythingLoaded = true;
+                    }
+
+                    // loadingProgress.textContent = `${loaded} / ${videoFiles.length}`;
+                    console.log(`${loaded} / ${videoFiles.length} loaded`);
+                } catch (error) {
+                    console.error(`Failed to load ${file}:`, error);
+                }
+            }
+
+            if (loadedVideos.length === 0) {
+                console.log('No videos found!');
+                return;
+            }
+
+            console.log('All videos loaded');
+        }
+
+        // Play next video in playlist
+        function playNext() {
+            console.log('Playing video:', currentIndex);
+
+            video1.src = playlist[currentIndex];
+            video1.style.zIndex = '2';
+            video1.play();
+
+            currentIndex++;
+            if (currentIndex >= playlist.length) {
+                currentIndex = 0;
+                playlist = shuffle(loadedVideos);
+            }
+
+            // Preload the next video in video2
+            video2.src = playlist[currentIndex];
+            video2.load();
+        }
+
+        // When video ends, swap to preloaded video
+        const video1 = document.getElementById('video-player');
+        const video2 = document.getElementById('video-preload');
+
+        video1.addEventListener('timeupdate', () => {
+            const currentTimeInSeconds = video1.currentTime;
+            if (currentTimeInSeconds > 7.8) {
+                // Start the preloaded video
+                video2.play();
+            }
+        });
+
+        video2.addEventListener('timeupdate', () => {
+            const currentTimeInSeconds = video2.currentTime;
+            if (currentTimeInSeconds > 7.8) {
+                // Start the preloaded video
+                video1.play();
+            }
+        });
+
+        video1.addEventListener('ended', () => {
+            console.log('Video1 ended');
+
+            video1.style.zIndex = '1';
+            video2.style.zIndex = '2';
+
+            currentIndex++;
+            if (currentIndex >= playlist.length) {
+                currentIndex = 0;
+                playlist = shuffle(loadedVideos);
+            }
+
+            // Preload next into video1
+            video1.src = playlist[currentIndex];
+            video1.load();
+        });
+
+        video2.addEventListener('ended', () => {
+            console.log('Video2 ended');
+
+            // Start the preloaded video
+            video1.play();
+
+            video2.style.zIndex = '1';
+            video1.style.zIndex = '2';
+
+            currentIndex++;
+            if (currentIndex >= playlist.length) {
+                currentIndex = 0;
+                playlist = shuffle(loadedVideos);
+            }
+
+            // Preload next into video2
+            video2.src = playlist[currentIndex];
+            video2.load();
+        });
+
+        function showIndicator(text, persistent = false) {
+            playPauseIndicator.textContent = text;
+            playPauseIndicator.classList.add('show');
+            if (indicatorTimeout) {
+                clearTimeout(indicatorTimeout);
+                indicatorTimeout = null;
+            }
+            if (!persistent) {
+                indicatorTimeout = setTimeout(() => {
+                    playPauseIndicator.classList.remove('show');
+                    indicatorTimeout = null;
+                }, 600);
+            }
+        }
+
+        // Start playback
+        function startPlayback() {
+            loadedVideos = loadedVideos.slice(0, 3);
+            console.log("loaded videos: ", loadedVideos);
+            loadingScreen.classList.add('hidden');
+            playlist = shuffle(loadedVideos);
+            currentIndex = 0;
+            isPlaying = true;
+            videoContainer.classList.remove('paused');
+            playNext();
+            if (hasStarted) {
+                showIndicator('Play');
+            } else {
+                hasStarted = true;
+            }
+        }
+
+        // Toggle play/pause on click
+        // videoContainer.addEventListener('click', () => {
+        //     const activeVideo = video1.style.zIndex === '2' ? video1 : video2;
+
+        //     if (isPlaying) {
+        //         activeVideo.pause();
+        //         isPlaying = false;
+        //         showIndicator('PAUSED', true);
+        //         videoContainer.classList.add('paused');
+        //     } else {
+        //         activeVideo.play();
+        //         isPlaying = true;
+        //         showIndicator('PLAY');
+        //         videoContainer.classList.remove('paused');
+        //     }
+        // });
+
+        // Play button
+        playButton.addEventListener('click', startPlayback);
+
+        // Initialize
+        buildVideoPaths();
+        loadVideos();
+    </script>
+</body>
+
+</html>
