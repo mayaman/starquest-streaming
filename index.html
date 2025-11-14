@@ -45,7 +45,8 @@
 
         #play-button {
             font-size: 7vw;
-            color: #DFD8FF;
+            /* color: #DFD8FF; */
+            color: hotpink;
             background: none;
             border: none;
             cursor: pointer;
@@ -289,15 +290,6 @@
         let indicatorTimeout = null;
         let hasStarted = false;
 
-        // Build video paths
-        // function buildVideoPaths() {
-        //     for (let i = 1; i < numberOfVideos; i++) {
-        //         videoFiles.push(`starquest-scenes-videos/${videoPrefix}${i}${videoExtension}`);
-        //     }
-        //     let base_clip_url = "https://cdn.feralfileassets.com/previews/1c4e667e-45b5-4467-a1e9-8efe8165ca0d/1763010757/clips/";
-        //     videoFiles
-        // }
-
         function buildVideoPaths() {
             console.log("building remote paths");
             shuffledSceneIds = shuffle(sceneIDs);
@@ -351,6 +343,16 @@
             }
 
             console.log('All videos loaded');
+        }
+
+        async function initPlaylist() {
+            loadingText.style.display = 'none';
+            playButton.style.display = 'block';
+            anythingLoaded = true;
+            currentIndex = 0;
+            playlist = shuffle(videoFiles);
+            video1.src = playlist[currentIndex];
+            video1.style.zIndex = '2';
         }
 
         // Play next video in playlist
@@ -502,7 +504,8 @@
 
         // Initialize
         buildVideoPaths();
-        loadVideos();
+        // loadVideos();
+        initPlaylist();
     </script>
 </body>
 
