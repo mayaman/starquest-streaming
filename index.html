@@ -46,7 +46,7 @@
         #play-button {
             font-size: 7vw;
             /* color: #DFD8FF; */
-            color: limegreen;
+            color: blue;
             background: none;
             border: none;
             cursor: pointer;
@@ -353,12 +353,16 @@
             playlist = shuffle(videoFiles);
             video1.src = playlist[currentIndex];
             video1.style.zIndex = '2';
+            video2.src = playlist[currentIndex];
+            video2.style.zIndex = '1';
         }
 
         // Play next video in playlist
         function playNext() {
             console.log('Playing video:', currentIndex);
             video1.play();
+            video1.muted = false;
+            video2.muted = false;
             currentIndex++;
             if (currentIndex >= playlist.length) {
                 currentIndex = 0;
