@@ -107,7 +107,7 @@
             width: 100%;
             height: 100%;
             /* object-fit: contain; */
-             width: 100vw;
+            width: 100vw;
             height: 100vh;
             object-fit: cover;
         }
@@ -250,7 +250,24 @@
             "98630812780435188807406188671760313206698968340061611991517188134130099896986",
             "98630812780435188807406188671760313206698968340061611991517188134130099896987",
             "98630812780435188807406188671760313206698968340061611991517188134130099896988",
-            "98630812780435188807406188671760313206698968340061611991517188134130099896989"
+            "98630812780435188807406188671760313206698968340061611991517188134130099896989",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896990",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896991",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896992",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896993",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896994",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896995",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896996",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896997",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896998",
+            "98630812780435188807406188671760313206698968340061611991517188134130099896999",
+            "98630812780435188807406188671760313206698968340061611991517188134130099897000",
+            "98630812780435188807406188671760313206698968340061611991517188134130099897001",
+            "98630812780435188807406188671760313206698968340061611991517188134130099897002",
+            "98630812780435188807406188671760313206698968340061611991517188134130099897003",
+            "98630812780435188807406188671760313206698968340061611991517188134130099897004",
+            "98630812780435188807406188671760313206698968340061611991517188134130099897005",
+            "98630812780435188807406188671760313206698968340061611991517188134130099897006"
         ];
 
         const numberOfVideos = 11;
@@ -282,8 +299,9 @@
         // }
 
         function buildVideoPaths() {
-            console.log("building remote paths")
-            for (const id of sceneIDs) {
+            console.log("building remote paths");
+            shuffledSceneIds = shuffle(sceneIDs);
+            for (const id of shuffledSceneIds) {
                 videoFiles.push(`https://cdn.feralfileassets.com/previews/1c4e667e-45b5-4467-a1e9-8efe8165ca0d/1763010757/clips/${id}`);
             }
         }
@@ -314,6 +332,10 @@
                         loadingText.style.display = 'none';
                         playButton.style.display = 'block';
                         anythingLoaded = true;
+                        currentIndex = 0;
+                        playlist = loadedVideos;
+                        video1.src = playlist[currentIndex];
+                        video1.style.zIndex = '2';
                     }
 
                     // loadingProgress.textContent = `${loaded} / ${videoFiles.length}`;
@@ -334,11 +356,7 @@
         // Play next video in playlist
         function playNext() {
             console.log('Playing video:', currentIndex);
-
-            video1.src = playlist[currentIndex];
-            video1.style.zIndex = '2';
             video1.play();
-
             currentIndex++;
             if (currentIndex >= playlist.length) {
                 currentIndex = 0;
@@ -390,9 +408,6 @@
         video2.addEventListener('ended', () => {
             console.log('Video2 ended');
 
-            // Start the preloaded video
-            video1.play();
-
             video2.style.zIndex = '1';
             video1.style.zIndex = '2';
 
@@ -424,11 +439,8 @@
 
         // Start playback
         function startPlayback() {
-            loadedVideos = loadedVideos.slice(0, 3);
             console.log("loaded videos: ", loadedVideos);
             loadingScreen.classList.add('hidden');
-            playlist = shuffle(loadedVideos);
-            currentIndex = 0;
             isPlaying = true;
             videoContainer.classList.remove('paused');
             playNext();
