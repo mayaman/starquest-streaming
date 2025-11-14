@@ -68,7 +68,7 @@
             color: #DFD8FF;
             background: none;
             border: none;
-            cursor: pointer;
+            cursor: default;
             transition: transform 0.2s;
             display: none;
         }
@@ -85,7 +85,6 @@
             position: relative;
             width: 100vw;
             height: 100vh;
-            cursor: pointer;
         }
 
         #video-container.paused::after {
@@ -96,7 +95,6 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            pointer-events: none;
             z-index: 5;
         }
 
@@ -128,16 +126,23 @@
             z-index: 10;
             color: #DFD8FF;
             padding: 30px 50px;
-            border-radius: 10px;
-            font-size: 48px;
+            font-size: 11vw;
             font-weight: bold;
-            pointer-events: none;
+            cursor: pointer;
             opacity: 0;
             transition: opacity 0.3s;
         }
 
+        #play-pause-indicator:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+
         #play-pause-indicator.show {
             opacity: 1;
+        }
+
+        .hide-cursor {
+            cursor: none;
         }
     </style>
 </head>
@@ -149,12 +154,19 @@
     </div>
 
     <div id="video-container">
-        <div id="play-pause-indicator">PAUSED</div>
+        <div id="play-pause-indicator">★</div>
         <video id="video-player" preload="auto" playsinline></video>
         <video id="video-preload" preload="auto" playsinline></video>
     </div>
 
     <script>
+        console.log("♫⋆｡♪ ₊˚♬ ﾟ.")
+        console.log("Get up");
+        console.log("Get on the floor");
+        console.log("My world is with my girls");
+        console.log("Livin' on the dance floor");
+        console.log("☆♬⋆.˚☆ ִ ࣪ ♪‧₊˚☆");
+
         // Configuration
         const sceneIDs = [
             "98630812780435188807406188671760313206698968340061611991517188134130099896896",
@@ -453,25 +465,48 @@
             }
         }
 
-        // Toggle play/pause on click
-        // videoContainer.addEventListener('click', () => {
-        //     const activeVideo = video1.style.zIndex === '2' ? video1 : video2;
-
-        //     if (isPlaying) {
-        //         activeVideo.pause();
-        //         isPlaying = false;
-        //         showIndicator('PAUSED', true);
-        //         videoContainer.classList.add('paused');
-        //     } else {
-        //         activeVideo.play();
-        //         isPlaying = true;
-        //         showIndicator('PLAY');
-        //         videoContainer.classList.remove('paused');
-        //     }
-        // });
-
         // Play button
         playButton.addEventListener('click', startPlayback);
+        videoContainer.addEventListener('click', () => {
+            const activeVideo = video1.style.zIndex === '2' ? video1 : video2;
+
+            if (isPlaying) {
+                activeVideo.pause();
+                isPlaying = false;
+                showIndicator('★', true);
+                videoContainer.classList.add('paused');
+            } else {
+                activeVideo.play();
+                isPlaying = true;
+                showIndicator('');
+                videoContainer.classList.remove('paused');
+            }
+        });
+
+        let cursorTimeout;
+        function showCursor() {
+            // Show the cursor
+            videoContainer.classList.remove("hide-cursor");
+
+            // Clear previous timer
+            clearTimeout(cursorTimeout);
+
+            // Hide after 1.5s of no movement
+            cursorTimeout = setTimeout(() => {
+                if (isPlaying) {
+                    videoContainer.classList.add("hide-cursor");
+                }
+            }, 1111);
+        }
+
+        // Show cursor when the user moves the mouse over the video
+        videoContainer.addEventListener("mousemove", showCursor);
+
+        // Show cursor again if they leave + re-enter
+        videoContainer.addEventListener("mouseenter", showCursor);
+        videoContainer.addEventListener("mouseleave", () => {
+            videoContainer.classList.remove("hide-cursor");
+        });
 
         // Initialize
         buildVideoPaths();
