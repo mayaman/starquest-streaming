@@ -46,7 +46,7 @@
         #play-button {
             font-size: 7vw;
             /* color: #DFD8FF; */
-            color: hotpink;
+            color: limegreen;
             background: none;
             border: none;
             cursor: pointer;
@@ -136,8 +136,8 @@
 
     <div id="video-container">
         <div id="play-pause-indicator">★</div>
-        <video id="video-player" preload="auto" playsinline></video>
-        <video id="video-preload" preload="auto" playsinline></video>
+        <video id="video-player" preload="auto" playsinline muted></video>
+        <video id="video-preload" preload="auto" playsinline muted></video>
     </div>
 
     <script>
@@ -373,62 +373,153 @@
         // When video ends, swap to preloaded video
         const video1 = document.getElementById('video-player');
         const video2 = document.getElementById('video-preload');
-        if (window.mobileCheck()) {
+        const isMobile = window.mobileCheck();
+        if (isMobile) {
             video1.style.objectFit = 'contain';
             video2.style.objectFit = 'contain';
         }
 
-        video1.addEventListener('timeupdate', () => {
-            const currentTimeInSeconds = video1.currentTime;
-            if (currentTimeInSeconds > 7.8) {
-                // Start the preloaded video
-                console.log("trying to play video 2: ", video2.src)
-                video2.play();
-            }
-        });
+        if (isMobile) {
 
-        video2.addEventListener('timeupdate', () => {
-            const currentTimeInSeconds = video2.currentTime;
-            if (currentTimeInSeconds > 7.8) {
-                // Start the preloaded video
-                console.log("trying to play video 1: ", video1.src)
-                video1.play();
-            }
-        });
+            video1.addEventListener('timeupdate', () => {
+                const currentTimeInSeconds = video1.currentTime;
+                if (currentTimeInSeconds > 7.8) {
+                    // Start the preloaded video
+                    console.log("trying to play video 2: ", video2.src)
+                    video2.play();
+                }
+            });
 
-        video1.addEventListener('ended', () => {
-            console.log('Video1 ended');
+            video2.addEventListener('timeupdate', () => {
+                const currentTimeInSeconds = video2.currentTime;
+                if (currentTimeInSeconds > 7.8) {
+                    // Start the preloaded video
+                    console.log("trying to play video 1: ", video1.src)
+                    video1.play();
+                }
+            });
 
-            video1.style.zIndex = '1';
-            video2.style.zIndex = '2';
+            video1.addEventListener('ended', () => {
+                console.log('Video1 ended');
 
-            currentIndex++;
-            if (currentIndex >= playlist.length) {
-                currentIndex = 0;
-                playlist = shuffle(loadedVideos);
-            }
+                video1.style.zIndex = '1';
+                video2.style.zIndex = '2';
 
-            // Preload next into video1
-            video1.src = playlist[currentIndex];
-            video1.load();
-        });
+                currentIndex++;
+                if (currentIndex >= playlist.length) {
+                    currentIndex = 0;
+                    playlist = shuffle(loadedVideos);
+                }
 
-        video2.addEventListener('ended', () => {
-            console.log('Video2 ended');
+                // Preload next into video1
+                video1.src = playlist[currentIndex];
+                video1.load();
+            });
 
-            video2.style.zIndex = '1';
-            video1.style.zIndex = '2';
+            video2.addEventListener('ended', () => {
+                console.log('Video2 ended');
 
-            currentIndex++;
-            if (currentIndex >= playlist.length) {
-                currentIndex = 0;
-                playlist = shuffle(loadedVideos);
-            }
+                video2.style.zIndex = '1';
+                video1.style.zIndex = '2';
 
-            // Preload next into video2
-            video2.src = playlist[currentIndex];
-            video2.load();
-        });
+                currentIndex++;
+                if (currentIndex >= playlist.length) {
+                    currentIndex = 0;
+                    playlist = shuffle(loadedVideos);
+                }
+
+                // Preload next into video2
+                video2.src = playlist[currentIndex];
+                video2.load();
+            });
+            video1.addEventListener('ended', () => {
+                console.log('Video1 ended');
+
+                video1.style.zIndex = '1';
+                video2.style.zIndex = '2';
+
+                currentIndex++;
+                if (currentIndex >= playlist.length) {
+                    currentIndex = 0;
+                    playlist = shuffle(loadedVideos);
+                }
+
+                // Preload next into video1
+                video1.src = playlist[currentIndex];
+                video1.load();
+            });
+
+            video2.addEventListener('ended', () => {
+                console.log('Video2 ended');
+
+                video2.style.zIndex = '1';
+                video1.style.zIndex = '2';
+
+                currentIndex++;
+                if (currentIndex >= playlist.length) {
+                    currentIndex = 0;
+                    playlist = shuffle(loadedVideos);
+                }
+
+                // Preload next into video2
+                video2.src = playlist[currentIndex];
+                video2.load();
+            });
+
+        } else {
+            video1.addEventListener('timeupdate', () => {
+                const currentTimeInSeconds = video1.currentTime;
+                if (currentTimeInSeconds > 7.8) {
+                    // Start the preloaded video
+                    console.log("trying to play video 2: ", video2.src)
+                    video2.play();
+                }
+            });
+
+            video2.addEventListener('timeupdate', () => {
+                const currentTimeInSeconds = video2.currentTime;
+                if (currentTimeInSeconds > 7.8) {
+                    // Start the preloaded video
+                    console.log("trying to play video 1: ", video1.src)
+                    video1.play();
+                }
+            });
+
+            video1.addEventListener('ended', () => {
+                console.log('Video1 ended');
+
+                video1.style.zIndex = '1';
+                video2.style.zIndex = '2';
+
+                currentIndex++;
+                if (currentIndex >= playlist.length) {
+                    currentIndex = 0;
+                    playlist = shuffle(loadedVideos);
+                }
+
+                // Preload next into video1
+                video1.src = playlist[currentIndex];
+                video1.load();
+            });
+
+            video2.addEventListener('ended', () => {
+                console.log('Video2 ended');
+
+                video2.style.zIndex = '1';
+                video1.style.zIndex = '2';
+
+                currentIndex++;
+                if (currentIndex >= playlist.length) {
+                    currentIndex = 0;
+                    playlist = shuffle(loadedVideos);
+                }
+
+                // Preload next into video2
+                video2.src = playlist[currentIndex];
+                video2.load();
+            });
+        }
+
 
         function showIndicator(text, persistent = false) {
             playPauseIndicator.textContent = text;
