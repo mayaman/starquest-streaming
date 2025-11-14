@@ -46,7 +46,7 @@
         #play-button {
             font-size: 7vw;
             /* color: #DFD8FF; */
-            color: blue;
+            color: cornsilk;
             background: none;
             border: none;
             cursor: pointer;
@@ -384,27 +384,9 @@
         }
 
         if (isMobile) {
-
-            video1.addEventListener('timeupdate', () => {
-                const currentTimeInSeconds = video1.currentTime;
-                if (currentTimeInSeconds > 7.8) {
-                    // Start the preloaded video
-                    console.log("trying to play video 2: ", video2.src)
-                    video2.play();
-                }
-            });
-
-            video2.addEventListener('timeupdate', () => {
-                const currentTimeInSeconds = video2.currentTime;
-                if (currentTimeInSeconds > 7.8) {
-                    // Start the preloaded video
-                    console.log("trying to play video 1: ", video1.src)
-                    video1.play();
-                }
-            });
-
             video1.addEventListener('ended', () => {
                 console.log('Video1 ended');
+                video2.play();
 
                 video1.style.zIndex = '1';
                 video2.style.zIndex = '2';
@@ -418,44 +400,12 @@
                 // Preload next into video1
                 video1.src = playlist[currentIndex];
                 video1.load();
+
             });
 
             video2.addEventListener('ended', () => {
                 console.log('Video2 ended');
-
-                video2.style.zIndex = '1';
-                video1.style.zIndex = '2';
-
-                currentIndex++;
-                if (currentIndex >= playlist.length) {
-                    currentIndex = 0;
-                    playlist = shuffle(loadedVideos);
-                }
-
-                // Preload next into video2
-                video2.src = playlist[currentIndex];
-                video2.load();
-            });
-            video1.addEventListener('ended', () => {
-                console.log('Video1 ended');
-
-                video1.style.zIndex = '1';
-                video2.style.zIndex = '2';
-
-                currentIndex++;
-                if (currentIndex >= playlist.length) {
-                    currentIndex = 0;
-                    playlist = shuffle(loadedVideos);
-                }
-
-                // Preload next into video1
-                video1.src = playlist[currentIndex];
-                video1.load();
-            });
-
-            video2.addEventListener('ended', () => {
-                console.log('Video2 ended');
-
+                video1.play();
                 video2.style.zIndex = '1';
                 video1.style.zIndex = '2';
 
