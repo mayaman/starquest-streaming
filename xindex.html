@@ -389,13 +389,12 @@
             "98630812780435188807406188671760313206698968340061611991517188134130099897006"
         ];
 
-        // SCENE ID URL PARAMS ?scene1=21&scene2=1&scene3=11 etc.
-
         const numberOfVideos = 11;
         const videoPrefix = 'starquest-scene-';
         const videoExtension = '.mp4';
 
         let videoFiles = [];
+        let loadedVideos = [];
         let playlist = [];
         let currentIndex = 0;
         let isPlaying = false;
@@ -409,44 +408,13 @@
         let indicatorTimeout = null;
         let hasStarted = false;
 
-        function getSceneIndicesFromURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const indices = [];
-
-            // Check for scene parameters (scene1, scene2, scene3, etc.)
-            let sceneNum = 1;
-            while (urlParams.has(`scene${sceneNum}`)) {
-                const index = parseInt(urlParams.get(`scene${sceneNum}`));
-                if (!isNaN(index) && index >= 0 && index < allSceneData.clips.length) {
-                    indices.push(index);
-                }
-                sceneNum++;
-            }
-
-            return indices;
-        }
-
         function buildVideoPaths() {
             console.log("building remote paths");
-            const sceneIndices = getSceneIndicesFromURL();
-            console.log("Scene indices from URL:", sceneIndices);
-
-            let selectedSceneIds;
-            if (sceneIndices.length > 0) {
-                // Use only the scenes specified in URL parameters
-                console.log("Using scenes from URL parameters:", sceneIndices);
-                selectedSceneIds = sceneIndices.map(index => allSceneData.clips[index - 1].tokenIDv21);
-            } else {
-                // Use all scenes if no parameters specified
-                selectedSceneIds = sceneIDs;
-            }
-
-            shuffledSceneIds = shuffle(selectedSceneIds);
+            shuffledSceneIds = shuffle(sceneIDs);
             for (const id of shuffledSceneIds) {
                 videoFiles.push(`https://cdn.feralfileassets.com/previews/1c4e667e-45b5-4467-a1e9-8efe8165ca0d/1763010757/clips/${id}`);
             }
         }
-
         // Shuffle array
         function shuffle(array) {
             const arr = [...array];
@@ -467,7 +435,7 @@
                     const response = await fetch(file);
                     const blob = await response.blob();
                     const url = URL.createObjectURL(blob);
-                    videoFiles.push(url);
+                    loadedVideos.push(url);
                     loaded++;
 
                     if (!anythingLoaded) {
@@ -475,7 +443,7 @@
                         playButton.style.display = 'block';
                         anythingLoaded = true;
                         currentIndex = 0;
-                        playlist = videoFiles;
+                        playlist = loadedVideos;
                         video1.src = playlist[currentIndex];
                         video1.style.zIndex = '2';
                     }
@@ -487,7 +455,7 @@
                 }
             }
 
-            if (videoFiles.length === 0) {
+            if (loadedVideos.length === 0) {
                 console.log('No videos found!');
                 return;
             }
@@ -519,7 +487,7 @@
             currentIndex++;
             if (currentIndex >= playlist.length) {
                 currentIndex = 0;
-                playlist = shuffle(videoFiles);
+                playlist = shuffle(loadedVideos);
             }
 
             // Preload the next video in video2
@@ -547,7 +515,7 @@
                 currentIndex++;
                 if (currentIndex >= playlist.length) {
                     currentIndex = 0;
-                    playlist = shuffle(videoFiles);
+                    playlist = shuffle(loadedVideos);
                 }
 
                 // Preload next into video1
@@ -565,7 +533,7 @@
                 currentIndex++;
                 if (currentIndex >= playlist.length) {
                     currentIndex = 0;
-                    playlist = shuffle(videoFiles); s
+                    playlist = shuffle(loadedVideos);
                 }
 
                 // Preload next into video2
@@ -600,14 +568,11 @@
 
                 video1.style.zIndex = '1';
                 video2.style.zIndex = '2';
-                console.log('currentindex; ', currentIndex);
-                console.log('playlist length; ', playlist.length);
-                console.log('playlist: ', playlist);
 
                 currentIndex++;
                 if (currentIndex >= playlist.length) {
                     currentIndex = 0;
-                    playlist = shuffle(videoFiles);
+                    playlist = shuffle(loadedVideos);
                 }
 
                 // Preload next into video1
@@ -623,13 +588,11 @@
 
                 video2.style.zIndex = '1';
                 video1.style.zIndex = '2';
-                console.log('currentindex; ', currentIndex);
-                console.log('playlist length; ', playlist.length);
-                console.log('playlist: ', playlist);
+
                 currentIndex++;
                 if (currentIndex >= playlist.length) {
                     currentIndex = 0;
-                    playlist = shuffle(videoFiles);
+                    playlist = shuffle(loadedVideos);
                 }
 
                 // Preload next into video2
@@ -656,7 +619,7 @@
 
         // Start playback
         function startPlayback() {
-            console.log("loaded videos: ", videoFiles);
+            console.log("loaded videos: ", loadedVideos);
             loadingScreen.classList.add('hidden');
             isPlaying = true;
             videoContainer.classList.remove('paused');
