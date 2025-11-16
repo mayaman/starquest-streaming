@@ -44,7 +44,7 @@
         }
 
         #play-button {
-            font-size: 7vw;
+            font-size: 2vw;
             color: #DFD8FF;
             background: none;
             border: none;
@@ -55,7 +55,8 @@
         }
 
         #play-button:hover {
-            transform: scale(1.11);
+            /* transform: scale(1.11); */
+            color: white;
         }
 
         #play-button.visible {
@@ -131,7 +132,10 @@
 <body>
     <div id="loading-screen">
         <div id="loading-text">loading...</div>
-        <button id="play-button">★</button>
+        <button id="play-button">
+            <p>stream</p>
+            <p>★</p>
+        </button>
     </div>
 
     <div id="video-container">
@@ -353,6 +357,9 @@
             video1.style.zIndex = '2';
             video2.src = playlist[currentIndex];
             video2.style.zIndex = '1';
+
+            // auto play
+            // setTimeout(startPlayback, 500);
         }
 
         // Play next video in playlist
@@ -510,9 +517,9 @@
 
         // Play button
         playButton.addEventListener('click', startPlayback);
+
         videoContainer.addEventListener('click', () => {
             const activeVideo = video1.style.zIndex === '2' ? video1 : video2;
-
             if (isPlaying) {
                 activeVideo.pause();
                 isPlaying = false;
