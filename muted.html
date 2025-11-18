@@ -49,13 +49,14 @@
             background: none;
             border: none;
             cursor: pointer;
-            /* transition: transform 0.2s; */
+            transition: transform 0.2s;
             display: none;
             font-family: arial, sans-serif;
         }
 
         #play-button:hover {
-            transform: scale(1.1);
+            /* transform: scale(1.11); */
+            color: white;
         }
 
         #play-button.visible {
@@ -125,6 +126,20 @@
         .hide-cursor {
             cursor: none;
         }
+
+        #audio-toggle {
+            color: #DFD8FF;
+            position: absolute;
+            top: 2%;
+            left: 2%;
+            z-index: 111;
+            background-color: none;
+            border: none;
+        }
+
+        #audio-toggle:hover {
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -132,12 +147,12 @@
     <div id="loading-screen">
         <div id="loading-text">loading...</div>
         <button id="play-button">
-            <p> ★ stream ★</p>
         </button>
     </div>
 
     <div id="video-container">
         <div id="play-pause-indicator">★</div>
+        <div id="audio-toggle">♫ AUDIO ON ♫</div>
         <video id="video-player" preload="auto" playsinline muted></video>
         <video id="video-preload" preload="auto" playsinline muted></video>
     </div>
@@ -505,15 +520,13 @@
             video2.style.zIndex = '1';
 
             // auto play
-            // setTimeout(startPlayback, 500);
+            setTimeout(startPlayback, 200);
         }
 
         // Play next video in playlist
         function playNext() {
             console.log('Playing video:', currentIndex);
             video1.play();
-            video1.muted = false;
-            video2.muted = false;
             currentIndex++;
             if (currentIndex >= playlist.length) {
                 currentIndex = 0;
@@ -667,21 +680,30 @@
         }
 
         // Play button
-        playButton.addEventListener('click', startPlayback);
+        // playButton.addEventListener('click', startPlayback);
 
-        videoContainer.addEventListener('click', () => {
-            const activeVideo = video1.style.zIndex === '2' ? video1 : video2;
-            if (isPlaying) {
-                activeVideo.pause();
-                isPlaying = false;
-                showIndicator('★', true);
-                videoContainer.classList.add('paused');
-            } else {
-                activeVideo.play();
-                isPlaying = true;
-                showIndicator('');
-                videoContainer.classList.remove('paused');
-            }
+        // videoContainer.addEventListener('click', () => {
+        //     const activeVideo = video1.style.zIndex === '2' ? video1 : video2;
+        //     if (isPlaying) {
+        //         activeVideo.pause();
+        //         isPlaying = false;
+        //         showIndicator('★', true);
+        //         videoContainer.classList.add('paused');
+        //     } else {
+        //         activeVideo.play();
+        //         isPlaying = true;
+        //         showIndicator('');
+        //         videoContainer.classList.remove('paused');
+        //     }
+        // });
+
+        document.getElementById('audio-toggle').addEventListener('click', () => {
+            // const activeVideo = video1.style.zIndex === '2' ? video1 : video2;
+            // activeVideo.muted = !activeVideo.muted;
+
+            video1.muted = !video1.muted;
+            video2.muted = !video2.muted;
+            document.getElementById('audio-toggle').innerText = video1.muted ? '♫ AUDIO ON ♫' : 'MUTE';
         });
 
         let cursorTimeout;
