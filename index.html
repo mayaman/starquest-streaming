@@ -410,12 +410,13 @@
         function getSceneIndicesFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             const indices = [];
-
             // Check for scene parameters (scene1, scene2, scene3, etc.)
             let sceneNum = 1;
+
             while (urlParams.has(`scene${sceneNum}`)) {
                 const index = parseInt(urlParams.get(`scene${sceneNum}`));
-                if (!isNaN(index) && index >= 0 && index < allSceneData.clips.length) {
+                console.log("scene: ", index);
+                if (!isNaN(index) && index >= 0 && index <= allSceneData.clips.length) {
                     indices.push(index);
                 }
                 sceneNum++;
@@ -425,7 +426,7 @@
         }
 
         function buildVideoPaths() {
-            console.log("building remote paths");
+            console.log("building remote pathsssss");
             const sceneIndices = getSceneIndicesFromURL();
             console.log("Scene indices from URL:", sceneIndices);
 
