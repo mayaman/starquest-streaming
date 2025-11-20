@@ -458,7 +458,7 @@
             "98630812780435188807406188671760313206698968340061611991517188134130099897006"
         ];
 
-        const baseURL = 'https://cdn.feralfileassets.com/previews/1c4e667e-45b5-4467-a1e9-8efe8165ca0d/1763010757/clips/';
+        const baseURL = 'https://cdn.feralfileassets.com/misc/049-resources/clips/';
         const videosPerPage = 12;
         let currentPage = 1;
         let totalPages = Math.ceil(sceneData.length / videosPerPage);
@@ -483,7 +483,7 @@
                 console.log('videoid', index)
                 videoItem.innerHTML = `
                     <video controls preload="metadata">
-                        <source src="${baseURL}${scene.tokenIDv21}" type="video/mp4">
+                        <source src="${baseURL}${scene.tokenIDv21}.mp4" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
                     <div class="video-title">S${videoNum}: ${scene.title}</div>
